@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "axiom-overrides",
+  "version": "${version}",
+  "name": "axiom-overrides",
+  "description": "",
+  "authors": ["r3signed"],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/axiom-overrides/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.r3signed.overrides.AxiomOverrides"
+    ]
+  },
+  "mixins": [
+    "axiom-overrides.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
