@@ -2,11 +2,17 @@
   "schemaVersion": 1,
   "id": "axiom-overrides",
   "version": "${version}",
-  "name": "axiom-overrides",
-  "description": "",
-  "authors": ["r3signed"],
-  "contact": {},
-  "license": "All-Rights-Reserved",
+  "name": "Axiom Overrides",
+  "description": "Overrides default Axiom behaviour for the ArdaCraft server.",
+  "authors": [
+    "r3signed"
+  ],
+  "contact": {
+    "sources": "https://github.com/r3signed/axiom-overrides",
+    "issues": "https://github.com/r3signed/axiom-overrides/issues",
+    "discord": "https://discord.com/invite/qcYBkCmAKZ"
+  },
+  "license": "GPL-3.0-or-later",
   "icon": "assets/axiom-overrides/icon.png",
   "environment": "client",
   "entrypoints": {
@@ -18,8 +24,11 @@
     "axiom-overrides.mixins.json"
   ],
   "depends": {
+    "minecraft": "${minecraft_version}",
     "fabricloader": ">=${loader_version}",
-    "fabric": "*",
-    "minecraft": "${minecraft_version}"
+    "fabric": "*"
+  },
+  "suggests": {
+    "axiom": "*"
   }
 }
