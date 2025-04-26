@@ -1,6 +1,7 @@
 package com.r3signed.overrides.mixins;
 
 import com.moulberry.axiom.screen.CustomCreativeTabButton;
+import com.moulberry.mixinconstraints.annotations.IfModLoaded;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,6 +14,7 @@ public class ScreenMixin {
     /**
      * Removes the "Colour Picker" and "Gradient Helper" buttons from the Axiom mod.
      */
+    @IfModLoaded("axiom")
     @Inject(
             method = "addDrawableChild",
             at = @At("HEAD"),

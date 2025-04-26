@@ -23,6 +23,9 @@ dependencies {
     // Mods
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modCompileOnly files("./libs/axiom.jar")
+
+    // Mixins
+    include(implementation("com.moulberry:mixinconstraints:1.0.8"))
 }
 
 /**
