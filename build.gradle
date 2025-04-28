@@ -5,26 +5,22 @@ plugins {
 
 version = project.mod_version
 group = project.maven_group
+int javaTarget = java_version as Integer
 
 base {
-    archivesName = project.archives_base_name
+    archivesName = project.mod_id
 }
 
 repositories {}
 
 dependencies {
-    // Mappings
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
 
-    // Fabric loader
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-    // Mods
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modCompileOnly files("./libs/axiom.jar")
-
-    // Mixins
     include(implementation("com.moulberry:mixinconstraints:1.0.8"))
 }
 
@@ -66,36 +62,34 @@ tasks.register("setupAxiom") {
 }
 
 processResources {
-    inputs.property "version", project.version
-    inputs.property "minecraft_version", project.minecraft_version
-    inputs.property "loader_version", project.loader_version
+    inputs.property "version", version
+    inputs.property "minecraft_version", minecraft_version
+    inputs.property "loader_version", fabric_loader_version
     filteringCharset "UTF-8"
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version,
-                "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
+        expand "version": version,
+                "minecraft_version": minecraft_version,
+                "loader_version": fabric_loader_version
     }
 }
 
-def targetJavaVersion = 17
 tasks.withType(JavaCompile).configureEach {
-    it.options.encoding = "UTF-8"
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        it.options.release.set(targetJavaVersion)
+    options.encoding = "UTF-8"
+    if (javaTarget >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release.set(javaTarget)
     }
 }
 
 java {
-    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    if (JavaVersion.current() < JavaVersion.toVersion(javaTarget)) {
+        toolchain.languageVersion = JavaLanguageVersion.of(javaTarget)
     }
     withSourcesJar()
 }
 
 jar {
     from("LICENSE") {
-        rename { "${it}_${archivesBaseName}" }
+        rename { "${it}_${mod_id}" }
     }
 }
