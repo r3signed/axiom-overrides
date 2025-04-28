@@ -1,3 +1,6 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
 plugins {
     id 'fabric-loom' version '1.10-SNAPSHOT'
     id 'maven-publish'
@@ -33,13 +36,16 @@ loom {
     }
 }
 tasks.named("runClient") {
-    dependsOn("setupAxiom")
+    dependsOn("setupAxiom", "updateLangFiles")
 }
 
 /**
  * Copies the Axiom JAR from the libs directory to the run/mods directory.
  */
 tasks.register("setupAxiom") {
+    description = "Copies the Axiom JAR to the run/mods directory."
+    group = "build setup"
+
     doFirst {
         def axiomJar = file("./libs/axiom.jar")
         if (!axiomJar.exists()) {
@@ -61,6 +67,81 @@ tasks.register("setupAxiom") {
     }
 }
 
+/**
+ * Updates the language files with Axiom's translations.
+ */
+tasks.register("updateLangFiles") {
+    description = "Updates the language files with Axiom's translations."
+    group = "build setup"
+
+    def axiomJar = file("./libs/axiom.jar")
+    def targetLangDir = file("${projectDir}/src/main/resources/assets/${mod_id}/lang/")
+    def axiomLangDir = file("${buildDir}/axiom-lang/")
+
+    doLast {
+        if (!axiomJar.exists()) {
+            throw new GradleException("Axiom JAR not found at ${axiomJar.absolutePath}")
+        }
+
+        if (!targetLangDir.exists()) {
+            targetLangDir.mkdirs()
+        }
+        axiomLangDir.delete()
+        axiomLangDir.mkdirs()
+
+        println("Extracting Axiom language files...")
+        copy {
+            from(zipTree(axiomJar)) {
+                include "assets/axiom/lang/*.json"
+                eachFile { details -> details.path = details.name }
+            }
+            into(axiomLangDir)
+        }
+
+        println("Applying language files...")
+        def jsonSlurper = new JsonSlurper()
+
+        axiomLangDir.eachFile { File langFile ->
+            if (langFile.isFile() && langFile.name.endsWith(".json")) {
+                def targetFile = new File(targetLangDir, langFile.name)
+
+                if (!targetFile.exists()) {
+                    println("> Creating new language file \"${langFile.name}\"")
+                    copy {
+                        from langFile
+                        into targetLangDir
+                    }
+                } else {
+                    println("> Updating existing language file \"${langFile.name}\"")
+                    def langData = jsonSlurper.parse(langFile)
+                    def targetData = jsonSlurper.parse(targetFile)
+                    boolean needsUpdate = false
+
+                    langData.each { key, value ->
+                        if (!targetData.containsKey(key) || targetData[key] != value) {
+                            println("  -> Updating \"${key}\" to \"${value}\"")
+                            targetData[key] = value
+                            needsUpdate = true
+                        }
+                    }
+
+                    if (needsUpdate) {
+                        targetFile.write(JsonOutput.prettyPrint(JsonOutput.toJson(targetData)), "UTF-8")
+                    } else {
+                        println("  -> No changes detected, skipping...")
+                    }
+
+                    println("  -> Done")
+                }
+            }
+        }
+
+        axiomLangDir.delete()
+        println("Successfully updated language files")
+    }
+
+}
+
 processResources {
     inputs.property "version", version
     inputs.property "minecraft_version", minecraft_version
@@ -75,6 +156,8 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
+    dependsOn("updateLangFiles")
+
     options.encoding = "UTF-8"
     if (javaTarget >= 10 || JavaVersion.current().isJava10Compatible()) {
         options.release.set(javaTarget)
