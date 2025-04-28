@@ -9,12 +9,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+@IfModLoaded("axiom")
 @Mixin(value = Screen.class, priority = 1000000)
 public class ScreenMixin {
     /**
      * Removes the "Colour Picker" and "Gradient Helper" buttons from the Axiom mod.
      */
-    @IfModLoaded("axiom")
     @Inject(
             method = "addDrawableChild",
             at = @At("HEAD"),
