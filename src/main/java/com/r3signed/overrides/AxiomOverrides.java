@@ -1,5 +1,6 @@
 package com.r3signed.overrides;
 
+import com.r3signed.overrides.core.Restrictions;
 import com.r3signed.overrides.core.Services;
 import net.fabricmc.api.ClientModInitializer;
 import org.slf4j.Logger;
@@ -12,6 +13,8 @@ public class AxiomOverrides implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         Services.init();
+        Restrictions.init();
 
+        LOGGER.info("Loaded overrides for Axiom...");
     }
 }
